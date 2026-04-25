@@ -1,0 +1,115 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isMasterAdmin() {
+      // Lista de emails com permissões Master Admin
+      return isAuthenticated() && request.auth.token.email in ['fernandouuo3@gmail.com', 'hanktecnologia@gmail.com'];
+    }
+    
+    function isAdmin() {
+      return isMasterAdmin() || (isAuthenticated() && getUserData().isAdmin == true);
+    }
+    
+    function hasActiveAccess() {
+      let u = getUserData();
+      return isAdmin() || (u.isApproved == true && u.hasPaid == true && u.subscriptionStatus == 'active');
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isCreatingWithOwnerUid() {
+      return isAuthenticated() && request.resource.data.uid == request.auth.uid;
+    }
+    
+    function canAccessApp() {
+      return isAdmin() || hasActiveAccess();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Protect Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      allow create: if isAuthenticated() && request.auth.uid == userId
+         // Lock down sensitive fields on creation unless master admin
+         && (request.resource.data.get('isAdmin', false) == false || isMasterAdmin())
+         && (request.resource.data.get('isApproved', false) == false || isMasterAdmin())
+         && (request.resource.data.get('hasPaid', false) == false || isMasterAdmin());
+         
+      allow update: if isAuthenticated() && (
+        isAdmin() || 
+        (request.auth.uid == userId && 
+         // User cannot escalate privileges
+         request.resource.data.get('isAdmin', false) == resource.data.get('isAdmin', false) &&
+         request.resource.data.get('isApproved', false) == resource.data.get('isApproved', false) &&
+         request.resource.data.get('hasPaid', false) == resource.data.get('hasPaid', false) &&
+         request.resource.data.get('subscriptionStatus', 'inactive') == resource.data.get('subscriptionStatus', 'inactive') &&
+         request.resource.data.get('plan', null) == resource.data.get('plan', null) &&
+         request.resource.data.get('role', 'user') == resource.data.get('role', 'user')
+        )
+      );
+      
+      allow delete: if isAdmin();
+    }
+
+    // App Data Collections
+    match /businesses/{docId} {
+      allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
+      allow create: if canAccessApp() && isCreatingWithOwnerUid();
+      allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));
+      allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
+    }
+    match /devices/{docId} {
+      allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
+      allow create: if canAccessApp() && isCreatingWithOwnerUid();
+      allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));
+      allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
+    }
+    match /sales/{docId} {
+      allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
+      allow create: if canAccessApp() && isCreatingWithOwnerUid();
+      allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));
+      allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
+    }
+    match /capital_transactions/{docId} {
+      allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
+      allow create: if canAccessApp() && isCreatingWithOwnerUid();
+      allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));
+      allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
+    }
+    match /suppliers/{docId} {
+      allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
+      allow create: if canAccessApp() && isCreatingWithOwnerUid();
+      allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));
+      allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
+    }
+    match /customers/{docId} {
+      allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
+      allow create: if canAccessApp() && isCreatingWithOwnerUid();
+      allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));
+      allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
+    }
+    match /imei_checks/{docId} {
+      allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
+      allow create: if canAccessApp() && isCreatingWithOwnerUid();
+      allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));
+      allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
+    }
+  }
+}

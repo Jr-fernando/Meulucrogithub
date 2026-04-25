@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --color-app-bg: #050505;
+  --color-card-bg: #0A0A0B;
+  --color-card-border: #222226;
+  --color-primary: #00df64;
+  --color-primary-dark: #00b350;
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+}
+
+body {
+  background-color: var(--color-app-bg);
+  color: var(--color-text-main);
+  /* Prevent bounce scroll on mobile PWA feel */
+  overscroll-behavior-y: none;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: #000;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for clean app feel */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-card-border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333336;
+}
+

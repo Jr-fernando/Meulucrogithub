@@ -1,0 +1,138 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile holding business/SaaS info. A tenant.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "staff"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    },
+    "Device": {
+      "title": "Device",
+      "description": "A smartphone in inventory.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "imei": { "type": "string" },
+        "brand": { "type": "string" },
+        "model": { "type": "string" },
+        "condition": { "type": "string", "enum": ["new", "used", "defective"] },
+        "purchasePrice": { "type": "number" },
+        "expectedSellPrice": { "type": "number" },
+        "status": { "type": "string", "enum": ["in_stock", "sold"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "imei", "brand", "model", "status", "purchasePrice"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "A device sale record.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "deviceId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "salePrice": { "type": "number" },
+        "profit": { "type": "number" },
+        "saleDate": { "type": "string" }
+      },
+      "required": ["uid", "deviceId", "salePrice", "saleDate"]
+    },
+    "ImeiCheck": {
+      "title": "ImeiCheck",
+      "description": "Result of an IMEI query.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "imei": { "type": "string" },
+        "brandModel": { "type": "string" },
+        "status": { "type": "string", "enum": ["CLEAN", "BLACKLISTED", "FINANCED"] },
+        "checkedAt": { "type": "string" }
+      },
+      "required": ["uid", "imei", "status", "checkedAt"]
+    },
+    "CapitalTransaction": {
+      "title": "CapitalTransaction",
+      "description": "A financial transaction for capital tracking.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "type": { "type": "string", "enum": ["in", "out"] },
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["uid", "type", "category", "amount", "date"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "A supplier entity.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "phone": { "type": "string" },
+        "location": { "type": "string" },
+        "rating": { "type": "number" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "name"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "A customer CRM record.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "notes": { "type": "string" },
+        "isVip": { "type": "boolean" },
+        "totalSpent": { "type": "number" },
+        "purchasesCount": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "name"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profiles and settings."
+    },
+    "/devices/{deviceId}": {
+      "schema": { "$ref": "#/entities/Device" },
+      "description": "Inventory of devices."
+    },
+    "/sales/{saleId}": {
+      "schema": { "$ref": "#/entities/Sale" },
+      "description": "Platform sales."
+    },
+    "/imei_checks/{checkId}": {
+      "schema": { "$ref": "#/entities/ImeiCheck" },
+      "description": "History of IMEI checks performed by users."
+    },
+    "/capital_transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/CapitalTransaction" },
+      "description": "Transactions forming the user's capital."
+    },
+    "/suppliers/{supplierId}": {
+      "schema": { "$ref": "#/entities/Supplier" },
+      "description": "User's registered suppliers."
+    },
+    "/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "User's registered customers."
+    }
+  }
+}
