@@ -99,7 +99,7 @@ export function ReportsPage() {
           { title: "Despesas Totais", value: `R$ ${despesasTotal.toFixed(2).replace('.', ',')}`, icon: TrendingDown, trend: "", isUp: false, color: "text-rose-400" },
           { title: "Ticket Médio", value: `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`, icon: Target, trend: "", isUp: true, color: "text-blue-400" },
         ].map((kpi, i) => (
-          <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-[#111114] border border-[#222226] p-6 rounded-3xl relative overflow-hidden group">
+          <motion.div key={i} initial="show" animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-[#111114] border border-[#222226] p-6 rounded-3xl relative overflow-hidden group">
             <div className="flex justify-between items-start mb-4">
               <div className="p-3 bg-[#1A1A1E] rounded-xl group-hover:scale-110 transition-transform">
                 <kpi.icon className={cn("h-6 w-6", kpi.color)} />

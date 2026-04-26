@@ -132,7 +132,7 @@ export function CapitalPage() {
         </div>
       </div>
 
-      <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+      <motion.div variants={containerVariants} initial="show" animate="show" className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
         {/* Saldo Atual */}
         <motion.div variants={itemVariants} className="bg-gradient-to-br from-[#111114] to-[#1a1f1c] border border-[var(--color-primary)]/30 rounded-3xl p-6 relative overflow-hidden group shadow-[0_4px_30px_rgba(0,223,100,0.05)]">
            <div className="absolute top-0 right-0 -translate-y-4 translate-x-4 opacity-5">

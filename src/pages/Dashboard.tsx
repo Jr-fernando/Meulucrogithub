@@ -63,7 +63,7 @@ export function DashboardPage() {
       setSales(data);
       setIsLoadingSales(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "sales");
+      try { handleFirestoreError(error, OperationType.LIST, "sales"); } catch (e) { console.error(e); }
       setIsLoadingSales(false);
     });
 
@@ -78,7 +78,7 @@ export function DashboardPage() {
       setDevices(data);
       setIsLoadingDevices(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "devices");
+      try { handleFirestoreError(error, OperationType.LIST, "devices"); } catch (e) { console.error(e); }
       setIsLoadingDevices(false);
     });
 
@@ -236,7 +236,7 @@ export function DashboardPage() {
   ];
 
   return (
-    <motion.div className="space-y-8 md:space-y-12" variants={containerVariants} initial="hidden" animate="show">
+    <motion.div className="space-y-8 md:space-y-12" variants={containerVariants} initial="show" animate="show">
       {/* Hello Banner */}
       <motion.div variants={itemVariants} className="flex flex-col xl:flex-row xl:items-center justify-between gap-8 bg-[#0A0A0B] p-8 md:p-10 rounded-[2.5rem] border border-[#222226]/60 relative overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
         <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-[var(--color-primary)]/5 to-transparent pointer-events-none"></div>

@@ -157,7 +157,7 @@ export function CustomersPage() {
       </div>
 
       {/* Metric Cards Banner */}
-      <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+      <motion.div variants={containerVariants} initial="show" animate="show" className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         <motion.div variants={itemVariants} className="bg-[#111114] border border-[#222226] rounded-2xl p-4 sm:p-5 flex flex-col justify-between group hover:border-slate-600 transition-colors">
           <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider mb-2 font-semibold">Total de Clientes</p>
           <div className="flex items-end justify-between">
@@ -222,7 +222,7 @@ export function CustomersPage() {
             <p className="text-slate-500 text-sm mt-1 max-w-sm mb-6">Crie seu banco de dados de clientes para ter acesso rápido e enviar novidades do seu estoque.</p>
           </motion.div>
         ) : (
-          <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <motion.div variants={containerVariants} initial="show" animate="show" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {filteredCustomers.map((customer) => (
               <motion.div variants={itemVariants} key={customer.id} className="bg-[#111114] border border-[#222226] hover:border-slate-600 transition-colors rounded-2xl p-5 flex flex-col relative group">
                 {customer.isVip && (

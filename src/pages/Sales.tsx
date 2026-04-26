@@ -68,7 +68,7 @@ export function SalesPage() {
       setSales(data.sort((a, b) => b.saleDate.getTime() - a.saleDate.getTime()));
       setIsLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "sales");
+      try { handleFirestoreError(error, OperationType.LIST, "sales"); } catch (e) { console.error(e); }
       setIsLoading(false);
     });
 
@@ -86,7 +86,9 @@ export function SalesPage() {
          data = data.filter(d => d.businessId === currentBusiness.id || !d.businessId);
       }
       setAvailableDevices(data);
-    }, (error) => handleFirestoreError(error, OperationType.LIST, "devices"));
+    }, (error) => {
+      try { handleFirestoreError(error, OperationType.LIST, "devices"); } catch(e) {}
+    });
 
     return () => {
       unsubSales();
@@ -202,7 +204,7 @@ export function SalesPage() {
       </div>
 
        <motion.div 
-        variants={containerVariants} initial="hidden" animate="show"
+        variants={containerVariants} initial="show" animate="show"
         className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4"
       >
         <motion.div variants={itemVariants} className="bg-[#111114] border border-[#222226] rounded-2xl p-4 sm:p-5 flex flex-col justify-between group hover:border-slate-600 transition-colors">
@@ -265,7 +267,7 @@ export function SalesPage() {
             <p className="text-slate-500 text-sm mt-1 max-w-md">Suas vendas finalizadas e o histórico dos clientes aparecerão nesta área.</p>
           </motion.div>
         ) : (
-          <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <motion.div variants={containerVariants} initial="show" animate="show" className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {filteredSales.map(sale => (
               <motion.div variants={itemVariants} key={sale.id} className="bg-[#111114] p-5 rounded-2xl border border-[#222226] hover:border-slate-600 transition-colors flex flex-col justify-between gap-4 group">
                 <div className="flex gap-4">
