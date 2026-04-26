@@ -68,6 +68,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path
   };
+  // Log only — do NOT throw. Throwing inside error callbacks prevents
+  // finally blocks from running, leaving UI stuck in loading state.
   console.error("Firestore Error: ", JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
 }

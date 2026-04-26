@@ -12,7 +12,6 @@ service cloud.firestore {
     }
     
     function isMasterAdmin() {
-      // Lista de emails com permissões Master Admin
       return isAuthenticated() && request.auth.token.email in ['fernandouuo3@gmail.com', 'hanktecnologia@gmail.com'];
     }
     
@@ -20,11 +19,12 @@ service cloud.firestore {
       return isMasterAdmin() || (isAuthenticated() && getUserData().isAdmin == true);
     }
     
-    function hasActiveAccess() {
-      let u = getUserData();
-      return isAdmin() || (u.isApproved == true && u.hasPaid == true && u.subscriptionStatus == 'active');
+    // Freemium model: any authenticated & approved user can access the app
+    // hasPaid/subscriptionStatus are only used for feature-gating in the frontend
+    function canAccessApp() {
+      return isAdmin() || (isAuthenticated() && getUserData().get('isApproved', true) == true);
     }
-    
+
     function isDocOwner() {
       return isAuthenticated() && request.auth.uid == resource.data.uid;
     }
@@ -33,34 +33,29 @@ service cloud.firestore {
       return isAuthenticated() && request.resource.data.uid == request.auth.uid;
     }
     
-    function canAccessApp() {
-      return isAdmin() || hasActiveAccess();
-    }
-
     // Default deny
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Protect Users Collection
+    // Users Collection
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
       
+      // Allow user to create their own profile
       allow create: if isAuthenticated() && request.auth.uid == userId
-         // Lock down sensitive fields on creation unless master admin
          && (request.resource.data.get('isAdmin', false) == false || isMasterAdmin())
-         && (request.resource.data.get('isApproved', false) == false || isMasterAdmin())
          && (request.resource.data.get('hasPaid', false) == false || isMasterAdmin());
          
+      // Allow user to update their own profile (non-sensitive fields like businessProfile)
       allow update: if isAuthenticated() && (
         isAdmin() || 
         (request.auth.uid == userId && 
          // User cannot escalate privileges
          request.resource.data.get('isAdmin', false) == resource.data.get('isAdmin', false) &&
-         request.resource.data.get('isApproved', false) == resource.data.get('isApproved', false) &&
          request.resource.data.get('hasPaid', false) == resource.data.get('hasPaid', false) &&
          request.resource.data.get('subscriptionStatus', 'inactive') == resource.data.get('subscriptionStatus', 'inactive') &&
-         request.resource.data.get('plan', null) == resource.data.get('plan', null) &&
+         request.resource.data.get('plan', 'Free') == resource.data.get('plan', 'Free') &&
          request.resource.data.get('role', 'user') == resource.data.get('role', 'user')
         )
       );
@@ -68,7 +63,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // App Data Collections
+    // App Data Collections — any approved user can CRUD their own data
     match /businesses/{docId} {
       allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
       allow create: if canAccessApp() && isCreatingWithOwnerUid();
@@ -106,6 +101,12 @@ service cloud.firestore {
       allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
     }
     match /imei_checks/{docId} {
+      allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
+      allow create: if canAccessApp() && isCreatingWithOwnerUid();
+      allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));
+      allow delete: if canAccessApp() && (isAdmin() || isDocOwner());
+    }
+    match /orders/{docId} {
       allow read: if canAccessApp() && (isAdmin() || request.auth.uid == resource.data.uid);
       allow create: if canAccessApp() && isCreatingWithOwnerUid();
       allow update: if canAccessApp() && (isAdmin() || (isDocOwner() && request.resource.data.uid == resource.data.uid));

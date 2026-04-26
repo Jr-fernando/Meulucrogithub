@@ -66,7 +66,7 @@ export function InventoryPage() {
       setDevices(data);
       setIsLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, "devices");
+      try { handleFirestoreError(error, OperationType.LIST, "devices"); } catch(e) { console.error(e); }
       setIsLoading(false);
     });
 
@@ -90,10 +90,16 @@ export function InventoryPage() {
       let imageUrl = null;
 
       if (imageFile) {
-        const compressedFile = await imageCompression(imageFile, { maxSizeMB: 1, maxWidthOrHeight: 1024, useWebWorker: true });
-        const storageRef = ref(storage, `devices/${auth.currentUser.uid}/${Date.now()}_${compressedFile.name}`);
-        const snapshot = await uploadBytes(storageRef, compressedFile);
-        imageUrl = await getDownloadURL(snapshot.ref);
+        try {
+          const compressedFile = await imageCompression(imageFile, { maxSizeMB: 1, maxWidthOrHeight: 1024, useWebWorker: true });
+          const storageRef = ref(storage, `devices/${auth.currentUser.uid}/${Date.now()}_${compressedFile.name}`);
+          const snapshot = await uploadBytes(storageRef, compressedFile);
+          imageUrl = await getDownloadURL(snapshot.ref);
+        } catch (uploadErr) {
+          console.error('Falha no upload da imagem (Storage pode nao estar configurado):', uploadErr);
+          // Continue saving without image
+          imageUrl = null;
+        }
       }
 
       await addDoc(collection(db, "devices"), {
@@ -118,7 +124,8 @@ export function InventoryPage() {
       setImagePreview(null);
       setFormData({ imei: "", serial: "", brand: "", model: "", condition: "used", purchasePrice: "", expectedSellPrice: "", supplier: "", observations: "" });
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, "devices");
+      console.error('Erro ao salvar aparelho:', err);
+      alert('Erro ao salvar. Verifique sua conexao e tente novamente.');
     } finally {
       setIsUploading(false);
     }
